@@ -1,7 +1,7 @@
 # TODO:
 # - error checking tests for target?
 # - clean up set and target functions below so they don't duplicate code
-# - bug: clicking target reloads the page with xaxis and yaxis query parameters
+# - bug: need correct bounds error message when target fails because input is outside range
 
 from flask import *
 import json, sys

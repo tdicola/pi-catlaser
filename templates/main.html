@@ -33,7 +33,7 @@
                             <input type="text" class="form-control" id="targetx" value=""></input>
                             <input type="text" class="form-control" id="targety" value=""></input>
                             <span class="label label-danger"></span>
-                            <button class="button button-default">Target</button>
+                            <button type="button" class="button button-default">Target</button>
                         </div>
                     </form>
                 </div>
@@ -80,6 +80,7 @@
                                  success: function() {
                                     group.removeClass('has-error');
                                     errorspan.text('');
+                                    location.reload(true);
                                  }
                             });
                 });
