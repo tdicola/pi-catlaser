@@ -1,8 +1,11 @@
 # TODO:
+# - error checking tests for target?
+# - clean up set and target functions below so they don't duplicate code
+# - bug: clicking target reloads the page with xaxis and yaxis query parameters
 
 from flask import *
-import json
-import model, modeltests
+import json, sys
+import model
 
 DEBUG = True
 
@@ -10,7 +13,14 @@ DEBUG = True
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-servos = modeltests.TestServos()
+servos = None
+if len(sys.argv) > 1 and sys.argv[1] == "test":
+	import modeltests
+	servos = modeltests.TestServos()
+else:
+	import servos
+	servos = servos.Servos()
+
 model = model.LaserModel(servos)
 
 # Define views
@@ -30,6 +40,14 @@ def setXAxis(xaxis):
 def setYAxis(yaxis):
 	try:
 		model.setYAxis(yaxis)
+	except ValueError as e:
+		return jsonify({'result': e.message}), 500
+	return jsonify({'result': 'success'}), 204
+
+@app.route('/target/<xaxis>/<yaxis>', methods=['PUT'])
+def target(xaxis, yaxis):
+	try:
+		model.target(xaxis, yaxis)
 	except ValueError as e:
 		return jsonify({'result': e.message}), 500
 	return jsonify({'result': 'success'}), 204

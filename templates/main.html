@@ -28,6 +28,13 @@
                             <input type="text" class="form-control" name="yaxis" value="{{ model.getYAxis() }}"></input>
                             <span class="label label-danger"></span>
                         </div>
+                        <div id="target" class="form-group">
+                            <label>Target</label>
+                            <input type="text" class="form-control" id="targetx" value=""></input>
+                            <input type="text" class="form-control" id="targety" value=""></input>
+                            <span class="label label-danger"></span>
+                            <button class="button button-default">Target</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -58,6 +65,24 @@
                 }
                 setupAxis('xaxis');
                 setupAxis('yaxis');
+
+                $('#target > button').click(function() {
+                    var group = $('#target');
+                    var errorspan = group.children('span');
+                    $.ajax({ url: '/target/' + $('#targetx').val() + '/' + $('#targety').val(),
+                                 type: 'PUT',
+                                 error: function(request) {
+                                    group.addClass('has-error');
+                                    if (request.status === 500) {
+                                        errorspan.text($.parseJSON(request.responseText).result);
+                                    }
+                                 },
+                                 success: function() {
+                                    group.removeClass('has-error');
+                                    errorspan.text('');
+                                 }
+                            });
+                });
             });
         </script>
     </body>
