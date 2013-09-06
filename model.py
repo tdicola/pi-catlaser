@@ -11,8 +11,8 @@ class LaserModel(object):
 		self.targetXBounds = (0.0, 240.0)
 		self.targetYBounds  = (0.0, 320.0)
 		self.laserXBounds = (150.0, 650.0)
-		self.laserTopYBounds = (150.0, 650.0)
-		self.laserBottomYBounds = (200.0, 600.0)
+		self.laserTopYBounds = (200.0, 600.0)
+		self.laserBottomYBounds = (150.0, 650.0)
 
 	def validateAxis(self, value):
 		try:

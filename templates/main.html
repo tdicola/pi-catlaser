@@ -15,25 +15,68 @@
                 <div class="col-md-3">
             </div>
             <div class="row">
+                <div class="col-md-9">
+                    <h2>Raspberry Pi Cat Laser</h2>
+                    <!--<iframe src="http://www.ustream.tv/embed/2924984" width="608" height="368" scrolling="no" frameborder="0" style="border: 0px none transparent;"></iframe>-->
+                    <div id="targetpad">
+                        <h4>Click below to target a spot with the laser:</h4>
+                        <div>
+                            <svg id="targetpad" xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="background-color: #3BA3FF; cursor: crosshair;">
+                                <rect width="310" height="230" x="5" y="5" style="fill: #ABABAB;"/>
+                            </svg>
+                        </div>
+                        <div class="label label-danger"></div>
+                    </div>
+                </div>
+
                 <div class="col-md-3">
-                    <h3>Settings</h3>
+                    <h3>Position</h3>
                     <form role="form">
                         <div id="xaxis" class="form-group">
-                            <label for="xaxis">X Axis</label>
+                            <label for="xaxis">X Axis:</label>
                             <input type="text" class="form-control" name="xaxis" value="{{ model.getXAxis() }}"></input>
                             <span class="label label-danger"></span>
                         </div>
                         <div id="yaxis" class="form-group">
-                            <label for="yaxis">Y Axis</label>
+                            <label for="yaxis">Y Axis:</label>
                             <input type="text" class="form-control" name="yaxis" value="{{ model.getYAxis() }}"></input>
                             <span class="label label-danger"></span>
                         </div>
+                    </form>
+
+                    <!-- <h3>Manual Targeting</h3>
+                    <form role="form">
                         <div id="target" class="form-group">
-                            <label>Target</label>
-                            <input type="text" class="form-control" id="targetx" value=""></input>
-                            <input type="text" class="form-control" id="targety" value=""></input>
-                            <span class="label label-danger"></span>
-                            <button type="button" class="button button-default">Target</button>
+                            <div class="form-group">
+                                <label>X Axis:</label>
+                                <input type="text" class="form-control" id="targetx" value=""></input>
+                            </div>
+                            <div class="form-group">
+                                <label>Y Axis:</label>
+                                <input type="text" class="form-control" id="targety" value=""></input>
+                            </div>
+                            <div class="form-group">
+                                <span class="label label-danger"></span>
+                                <button type="button" class="button button-default">Target</button>
+                            </div>
+                        </div>
+                    </form> -->
+
+                    <h3>Settings</h3>
+                    <form role="form">
+                        <div id="target" class="form-group">
+                            <div class="form-group">
+                                <label>X Axis:</label>
+                                <input type="text" class="form-control" id="targetx" value=""></input>
+                            </div>
+                            <div class="form-group">
+                                <label>Y Axis:</label>
+                                <input type="text" class="form-control" id="targety" value=""></input>
+                            </div>
+                            <div class="form-group">
+                                <span class="label label-danger"></span>
+                                <button type="button" class="button button-default">Update</button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -66,20 +109,36 @@
                 setupAxis('xaxis');
                 setupAxis('yaxis');
 
-                $('#target > button').click(function() {
-                    var group = $('#target');
-                    var errorspan = group.children('span');
-                    $.ajax({ url: '/target/' + $('#targetx').val() + '/' + $('#targety').val(),
+                // $('#target button').click(function() {
+                //     var group = $('#target');
+                //     var errorspan = $('#target span');
+                //     $.ajax({ url: '/target/' + $('#targetx').val() + '/' + $('#targety').val(),
+                //                  type: 'PUT',
+                //                  error: function(request) {
+                //                     group.addClass('has-error');
+                //                     if (request.status === 500) {
+                //                         errorspan.text($.parseJSON(request.responseText).result);
+                //                     }
+                //                  },
+                //                  success: function() {
+                //                     group.removeClass('has-error');
+                //                     errorspan.text('');
+                //                     location.reload(true);
+                //                  }
+                //             });
+                // });
+
+                $('#targetpad svg').click(function(ev) {
+                    var error = $('#targetpad > div.label-danger');
+                    $.ajax({ url: '/target/' + ev.offsetY + '/' + ev.offsetX,
                                  type: 'PUT',
                                  error: function(request) {
-                                    group.addClass('has-error');
                                     if (request.status === 500) {
-                                        errorspan.text($.parseJSON(request.responseText).result);
+                                        error.text($.parseJSON(request.responseText).result);
                                     }
                                  },
                                  success: function() {
-                                    group.removeClass('has-error');
-                                    errorspan.text('');
+                                    error.text('');
                                     location.reload(true);
                                  }
                             });
