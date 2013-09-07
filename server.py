@@ -44,6 +44,19 @@ def setYAxis(yaxis):
 		return jsonify({'result': e.message}), 500
 	return jsonify({'result': 'success'}), 204
 
+@app.route('/setboth/<xaxis>/<yaxis>', methods=['PUT'])
+def setBoth(xaxis, yaxis):
+	try:
+		model.setXAxis(xaxis)
+		model.setYAxis(yaxis)
+	except ValueError as e:
+		return jsonify({'result': e.message}), 500
+	return jsonify({'result': 'sucssess'}), 204
+
+@app.route('/get', methods=['GET'])
+def get():
+	return jsonify({'xaxis': model.getXAxis(), 'yaxis': model.getYAxis() }), 200
+
 @app.route('/target/<xaxis>/<yaxis>', methods=['PUT'])
 def target(xaxis, yaxis):
 	try:

@@ -12,13 +12,12 @@
     <body>
         <div class="container">
             <div class="row">
-                <div class="col-md-3">
-            </div>
-            <div class="row">
                 <div class="col-md-9">
                     <h2>Raspberry Pi Cat Laser</h2>
                     <!--<iframe src="http://www.ustream.tv/embed/2924984" width="608" height="368" scrolling="no" frameborder="0" style="border: 0px none transparent;"></iframe>-->
-                    <div id="targetpad">
+                    <!--<iframe src="http://192.168.1.100:8081/live.htm" width="650" height="490" scrolling="no" frameborder="0" style="border: 0px none transparent;"></iframe>-->
+                    <img id="video" src="http://192.168.1.100:8081/videostream.cgi?rate=50">
+<!--                     <div id="targetpad">
                         <h4>Click below to target a spot with the laser:</h4>
                         <div>
                             <svg id="targetpad" xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="background-color: #3BA3FF; cursor: crosshair;">
@@ -26,19 +25,19 @@
                             </svg>
                         </div>
                         <div class="label label-danger"></div>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="col-md-3">
-                    <h3>Position</h3>
+                    <h3>Servo Position</h3>
                     <form role="form">
                         <div id="xaxis" class="form-group">
-                            <label for="xaxis">X Axis:</label>
+                            <label for="xaxis">X Axis Servo:</label>
                             <input type="text" class="form-control" name="xaxis" value="{{ model.getXAxis() }}"></input>
                             <span class="label label-danger"></span>
                         </div>
                         <div id="yaxis" class="form-group">
-                            <label for="yaxis">Y Axis:</label>
+                            <label for="yaxis">Y Axis Servo:</label>
                             <input type="text" class="form-control" name="yaxis" value="{{ model.getYAxis() }}"></input>
                             <span class="label label-danger"></span>
                         </div>
@@ -60,17 +59,17 @@
                                 <button type="button" class="button button-default">Target</button>
                             </div>
                         </div>
-                    </form> -->
+                    </form>
 
                     <h3>Settings</h3>
                     <form role="form">
                         <div id="target" class="form-group">
                             <div class="form-group">
-                                <label>X Axis:</label>
+                                <label>X Axis Servo:</label>
                                 <input type="text" class="form-control" id="targetx" value=""></input>
                             </div>
                             <div class="form-group">
-                                <label>Y Axis:</label>
+                                <label>Y Axis Servo:</label>
                                 <input type="text" class="form-control" id="targety" value=""></input>
                             </div>
                             <div class="form-group">
@@ -78,7 +77,7 @@
                                 <button type="button" class="button button-default">Update</button>
                             </div>
                         </div>
-                    </form>
+                    </form> -->
                 </div>
             </div>
         </div>
@@ -109,39 +108,75 @@
                 setupAxis('xaxis');
                 setupAxis('yaxis');
 
-                // $('#target button').click(function() {
-                //     var group = $('#target');
-                //     var errorspan = $('#target span');
-                //     $.ajax({ url: '/target/' + $('#targetx').val() + '/' + $('#targety').val(),
+                // $('#targetpad svg').click(function(ev) {
+                //     var error = $('#targetpad > div.label-danger');
+                //     $.ajax({ url: '/target/' + ev.offsetY + '/' + ev.offsetX,
                 //                  type: 'PUT',
                 //                  error: function(request) {
-                //                     group.addClass('has-error');
                 //                     if (request.status === 500) {
-                //                         errorspan.text($.parseJSON(request.responseText).result);
+                //                         error.text($.parseJSON(request.responseText).result);
                 //                     }
                 //                  },
                 //                  success: function() {
-                //                     group.removeClass('has-error');
-                //                     errorspan.text('');
+                //                     error.text('');
                 //                     location.reload(true);
                 //                  }
                 //             });
                 // });
 
-                $('#targetpad svg').click(function(ev) {
-                    var error = $('#targetpad > div.label-danger');
-                    $.ajax({ url: '/target/' + ev.offsetY + '/' + ev.offsetX,
-                                 type: 'PUT',
-                                 error: function(request) {
-                                    if (request.status === 500) {
-                                        error.text($.parseJSON(request.responseText).result);
-                                    }
-                                 },
-                                 success: function() {
-                                    error.text('');
-                                    location.reload(true);
-                                 }
-                            });
+                var readServos = function() {
+                    $.get('/get', function(data) {
+                        $('#xaxis > input').val(data.xaxis);
+                        $('#yaxis > input').val(data.yaxis);
+                    });
+                };
+
+                $('#video').click(function(ev) {
+                    var clickX = ev.clientX;
+                    var clickY = ev.clientY;
+
+                    console.log('Click ' + clickX + ' ' + clickY);
+
+                    var videoTop = 190;
+                    var videoBottom = 525;
+                    var videoTopXMin = 190;
+                    var videoTopXMax = 555;
+                    var videoBottomXMin = 240;
+                    var videoBottomXMax = 480;
+
+                    var servoXBottom = 220;
+                    var servoXTop = 298;
+                    var servoYLeft = 440;
+                    var servoYRight = 340;
+
+                    if (clickY >= videoTop && clickY <= videoBottom) {
+                        // Compute click Y location relative to target area
+                        var relativeY = (clickY - videoTop)/(videoBottom - videoTop);
+                        var minX = Math.round(videoTopXMin + relativeY*(videoBottomXMin - videoTopXMin));
+                        var maxX = Math.round(videoTopXMax - relativeY*(videoTopXMax - videoBottomXMax));
+                        // Compute X min and max for relative Y position
+                        if (clickX >= minX && clickX <= maxX) {
+                            // Compute relative X position
+                            var relativeX = (clickX - minX)/(maxX - minX);
+                            // Compute servo positions
+                            var servoX = Math.round(servoXBottom + (1.0 - relativeY)*(servoXTop - servoXBottom));
+                            var servoY = Math.round(servoYRight + (1.0 - relativeX)*(servoYLeft - servoYRight));
+                            // Move the servos
+                            $.ajax({ url: '/setboth/' + servoX + '/' + servoY,
+                                     type: 'PUT',
+                                     success: function() {
+                                        readServos();
+                                     }
+                                });
+
+                            // console.log(relativeX);
+                            // console.log(relativeY);
+                            // console.log(servoX);
+                            // console.log(servoY);
+                        }
+                    }
+
+                    
                 });
             });
         </script>
