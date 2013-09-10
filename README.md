@@ -17,6 +17,8 @@ The web application.  Clicking in the red target area will aim the laser:
 *	Two [servos](http://www.adafruit.com/products/169) glued to each other at a right angle.  One servo controls rotation left/right and the other controls rotation up/down.  See the image below:
 
 	<a href="http://imgur.com/DTGnc2f" title="Mobile Upload"><img src="http://i.imgur.com/DTGnc2fs.jpg" title="Hosted by imgur.com" alt="Mobile Upload"/></a>
+	
+	Make sure the servos are aimed at roughly the same angle as the camera (to reduce the error between clicking and aiming the laser).
 
 *	Laser diode glued to the servo.  You can [buy one](http://www.adafruit.com/products/1054) or scavenge one from a laser pointer (what I chose to do).
 
