@@ -104,6 +104,13 @@
                 setupAxis('xaxis');
                 setupAxis('yaxis');
 
+                var updateServos = function() {
+                    $.get('/get/servos').done(function(data) {
+                        $('#xaxis input').val(data.xaxis);
+                        $('#yaxis input').val(data.yaxis);
+                    });
+                };
+
                 var video = $('#video img').first();
                 // Generate an event that fires when the video image is loaded.
                 // Use both the load event on the image, and a 1 second timeout as
@@ -124,7 +131,12 @@
 
                 $('#calibrateLayer').click(function(ev) {
                     if (!calibration.isCalibrating()) {
-                        console.log('click');
+                        $.ajax({ 
+                            url: '/target/' + ev.clientX + '/' + ev.clientY, 
+                            type: 'PUT'
+                        }).done(function() {
+                            updateServos();
+                        });
                     }
                 });
             });
