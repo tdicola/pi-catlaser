@@ -132,7 +132,7 @@
                 $('#calibrateLayer').click(function(ev) {
                     if (!calibration.isCalibrating()) {
                         $.ajax({ 
-                            url: '/target/' + ev.clientX + '/' + ev.clientY, 
+                            url: '/target/' + ev.offsetX + '/' + ev.offsetY, 
                             type: 'PUT'
                         }).done(function() {
                             updateServos();

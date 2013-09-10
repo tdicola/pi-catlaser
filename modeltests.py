@@ -50,8 +50,11 @@ class LaserModelTests(unittest.TestCase):
 	def test_target(self):
 		targetCal = [{'x': 190, 'y': 190}, {'x': 555, 'y': 190}, {'x': 480, 'y': 525}, {'x': 240, 'y': 525}]
 		servoCal = [{'x': 440, 'y': 298}, {'x': 340, 'y': 298}, {'x': 340, 'y': 220}, {'x': 440, 'y': 220}]
+		#targetCal = [{"y": 89, "x": 143}, {"y": 89, "x": 516}, {"y": 437, "x": 447}, {"y": 435, "x": 190}]
+		#servoCal = [{"y": 445, "x": 430}, {"y": 352, "x": 428}, {"y": 367, "x": 348}, {"y": 425, "x": 345}]
 		self.model.setCalibration(targetCal, servoCal)
 		self.model.target(190, 190)
+		#self.model.target(144, 90)
 		self.assertEqual(self.servos.xaxis, 440)
 		self.assertEqual(self.servos.yaxis, 298)
 
