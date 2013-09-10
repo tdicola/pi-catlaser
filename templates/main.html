@@ -16,12 +16,12 @@
                     <h2>Raspberry Pi Cat Laser</h2>
                     <div id="video">
                         <!-- Set the MJPEG video stream URL in the image source below -->
-                        <img style="cursor: crosshair;" src="http://192.168.1.100:8081/videostream.cgi?rate=50"/>
+                        <img src="http://192.168.1.100:8081/videostream.cgi?rate=50"/>
                         <div id="calibrateLayer"></div>
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <h3>Servo Positions</h3>
                     <div id="xaxis" class="form-group">
                         <label>X Axis Servo</label>
@@ -104,6 +104,7 @@
                 setupAxis('xaxis');
                 setupAxis('yaxis');
 
+                // Update servo positions by querying server
                 var updateServos = function() {
                     $.get('/get/servos').done(function(data) {
                         $('#xaxis input').val(data.xaxis);
@@ -111,11 +112,12 @@
                     });
                 };
 
-                var video = $('#video img').first();
+                
                 // Generate an event that fires when the video image is loaded.
                 // Use both the load event on the image, and a 1 second timeout as
                 // a fallback.  I found the fallback is necessary with Chrome 
                 // because it sometimes never fires the load event for an MJPEG image.
+                var video = $('#video img').first();
                 var videoLoad = $.Deferred();
                 window.setTimeout(function() {
                     videoLoad.resolve();
@@ -129,6 +131,7 @@
                     calibration.setup('calibrateLayer', video.width(), video.height());
                 });
 
+                // Send target commands based on click locations
                 $('#calibrateLayer').click(function(ev) {
                     if (!calibration.isCalibrating()) {
                         $.ajax({ 

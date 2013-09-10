@@ -1,5 +1,6 @@
 var calibration = function() {
-    var canvas,
+    var calibrateLayer,
+        canvas,
         targets,
         bounds,
         targetCal,
@@ -78,6 +79,7 @@ var calibration = function() {
         isCalibrating = false;
         updateTargets();
         bounds.attr('path', Raphael.parsePathString(getBoundsPath()));
+        calibrateLayer.css('cursor', 'crosshair');
     };
 
     var targetCalibrationState = function() {
@@ -95,6 +97,7 @@ var calibration = function() {
         leftButton.show();
         targets.show();
         isCalibrating = true;
+        calibrateLayer.css('cursor', '');
     };
 
     var servoCorner1State = function() {
@@ -184,6 +187,7 @@ var calibration = function() {
     return {
         // Setup the calibration data and targets
         setup: function(id, width, height) {
+            calibrateLayer = $('#'+id);
             canvas = Raphael(id, width, height);
             return getCalibration().done(function() {
                 // If no calibration available pick sensible defaults

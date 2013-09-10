@@ -39,6 +39,7 @@ class LaserModel(object):
         return self.targetCalibration, self.servoCalibration
 
     def target(self, x, y):
+        """Transform screen coordinate position to servo coordinate position and move servos accordingly."""
         if self.transform == None:
             raise ValueError('Calibration not set!')
         screen = np.array([float(x), float(y), 1.0])
@@ -48,6 +49,7 @@ class LaserModel(object):
         self.setYAxis(round(servo[1]))
 
     def _validateAxis(self, value):
+        """Validate servo value is within range of allowed values."""
         try:
             v = int(value)
             if v < self.servoMin or v > self.servoMax:
@@ -57,6 +59,7 @@ class LaserModel(object):
             raise ValueError('Invalid value! Must be a value between %i and %i.' % (self.servoMin, self.servoMax))
 
     def _loadCalibration(self):
+        """Load calibration data from disk."""
         try:
             with open(self.calibrationFile, 'r') as file:
                 cal = json.loads(file.read())
@@ -66,6 +69,7 @@ class LaserModel(object):
             pass
 
     def _saveCalibration(self):
+        """Save calibration data to disk."""
         with open(self.calibrationFile, 'w') as file:
             file.write(json.dumps({'targetCalibration': self.targetCalibration, 'servoCalibration': self.servoCalibration }))
 

@@ -59,7 +59,6 @@ class LaserModelTests(unittest.TestCase):
 		self.assertEqual(self.servos.yaxis, 298)
 
 
-
 class TestServos(object):
 	def __init__(self):
 		self.xaxis = 0
