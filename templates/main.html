@@ -64,11 +64,9 @@
         <script src="{{ url_for('static', filename='js/vendor/json2.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/raphael-min.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/vendor/sylvester.js') }}"></script>
         <script src="{{ url_for('static', filename='js/calibration.js') }}"></script>
         <script>
             $(document).ready(function() {
-
                 // Setup servo controls
                 var setupAxis = function(axis) {
                     var group = $('#' + axis);
@@ -119,13 +117,9 @@
                     videoLoad.resolve();
                 });
                 
-                // Wait for the video image to load, then for calibration setup to run.
-                videoLoad.then(function() {
-                    return calibration.setup('calibrateLayer', video.width(), video.height());
-                }).done(function() {
-                    // Start executing logic
-                    // Start in play mode
-
+                // Wait for the video image to load, then setup calibration.
+                videoLoad.done(function() {
+                    calibration.setup('calibrateLayer', video.width(), video.height());
                 });
             });
         </script>

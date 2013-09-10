@@ -10,6 +10,7 @@ class LaserModel(object):
         self.setYAxis(servoCenter)
         self.targetCalibration = None
         self.servoCalibration = None
+        self.transform = None
         self.calibrationFile = 'calibration.json'
         self._loadCalibration()
         self._generateTransform()
@@ -38,6 +39,8 @@ class LaserModel(object):
         return self.targetCalibration, self.servoCalibration
 
     def target(self, x, y):
+        if self.transform == None:
+            raise ValueError('Calibration not set!')
         screen = np.array([float(x), float(y), 1.0])
         servo = self.transform.dot(screen)
         servo = servo/servo[2]
@@ -72,6 +75,8 @@ class LaserModel(object):
         servo movement coordinates using a perspective transformation.  
         See http://alumni.media.mit.edu/~cwren/interpolator/ for more details.
         """
+        if self.targetCalibration == None or self.servoCalibration == None:
+            return
         # Define some variables to make the matrices easier to read
         x1 = float(self.targetCalibration[0]['x'])
         y1 = float(self.targetCalibration[0]['y'])

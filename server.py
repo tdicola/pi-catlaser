@@ -32,8 +32,6 @@ else:
 
 model = model.LaserModel(servos, SERVO_MIN, SERVO_MAX, SERVO_CENTER)
 
-# Setup application views and API's below
-
 # Main view for rendering the web page
 @app.route('/')
 def main():
@@ -41,29 +39,29 @@ def main():
 
 # Error handler for API call failures
 @app.errorhandler(ValueError)
-def value_error_handler(error):
+def valueErrorHandler(error):
 	return jsonify({'result': error.message}), 500
 
-# REST API to set x axis servo rotation
+def successNoResponse():
+	return jsonify({'result': 'success'}), 204
+
+# API calls used by the web app
 @app.route('/set/servo/xaxis/<xaxis>', methods=['PUT'])
 def setServoXAxis(xaxis):
 	model.setXAxis(xaxis)
-	return jsonify({'result': 'success'}), 204
+	return successNoResponse()
 
-# REST API to set y axis servo rotation
 @app.route('/set/servo/yaxis/<yaxis>', methods=['PUT'])
 def setServoYAaxis(yaxis):
 	model.setYAxis(yaxis)
-	return jsonify({'result': 'success'}), 204
+	return successNoResponse()
 
-# REST API to set both x and y axis servo rotation
 @app.route('/set/servos/<xaxis>/<yaxis>', methods=['PUT'])
 def setServos(xaxis, yaxis):
 	model.setXAxis(xaxis)
 	model.setYAxis(yaxis)
-	return jsonify({'result': 'success'}), 204
+	return successNoResponse()
 
-# REST API to read x and y axis servo rotation
 @app.route('/get/servos', methods=['GET'])
 def getServos():
 	return jsonify({'xaxis': model.getXAxis(), 'yaxis': model.getYAxis() }), 200
@@ -74,9 +72,14 @@ def getCalibration():
 
 @app.route('/set/calibration', methods=['POST'])
 def setCalibration():
-	model.targetCalibration = json.loads(request.form['targetCalibration'])
-	model.servoCalibration = json.loads(request.form['servoCalibration'])
-	return jsonify({'result': 'success'}), 204
+	model.setCalibration(json.loads(request.form['targetCalibration']), json.loads(request.form['servoCalibration']))
+	return successNoResponse()
+
+@app.route('/target/<int:x>/<int:y>', methods=['PUT'])
+def target(x, y):
+	model.target(x, y)
+	return successNoResponse()
+
 
 # Start running the flask app
 if __name__ == '__main__':
