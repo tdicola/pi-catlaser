@@ -7,7 +7,8 @@ var calibration = function() {
         description = $('#calibrationStep p.description').first(),
         leftButton = $('#calibrationStep button.pull-left').first(),
         rightButton = $('#calibrationStep button.pull-right').first(),
-        tempServoCal;
+        tempServoCal,
+        isCalibrating = false;
 
     // Load calibration data from the server
     var getCalibration = function() {
@@ -36,13 +37,20 @@ var calibration = function() {
         });
     };
 
+    // Update targets to have current target calibration positions
+    var updateTargets = function() {
+        $.each(targets, function(i, target) {
+            target.attr({cx: targetCal[i].x, cy: targetCal[i].y });
+        });      
+    };
+
     // Generate path string for outline of target bounds
     var getBoundsPath = function() {
-        return Raphael.fullfill('M{tc1.x},{tc1.y}L{tc2.x},{tc2.y}L{tc3.x},{tc3.y}L{tc4.x},{tc4.y}Z', {
-            tc1: targetCal[0],
-            tc2: targetCal[1],
-            tc3: targetCal[2],
-            tc4: targetCal[3]
+        return Raphael.fullfill('M{tc1.attrs.cx},{tc1.attrs.cy}L{tc2.attrs.cx},{tc2.attrs.cy}L{tc3.attrs.cx},{tc3.attrs.cy}L{tc4.attrs.cx},{tc4.attrs.cy}Z', {
+            tc1: targets[0],
+            tc2: targets[1],
+            tc3: targets[2],
+            tc4: targets[3]
         });
     };
 
@@ -67,6 +75,9 @@ var calibration = function() {
         tempServoCal.push({x: 0, y: 0});
         tempServoCal.push({x: 0, y: 0});
         tempServoCal.push({x: 0, y: 0});
+        isCalibrating = false;
+        updateTargets();
+        bounds.attr('path', Raphael.parsePathString(getBoundsPath()));
     };
 
     var targetCalibrationState = function() {
@@ -83,6 +94,7 @@ var calibration = function() {
         rightButton.show();
         leftButton.show();
         targets.show();
+        isCalibrating = true;
     };
 
     var servoCorner1State = function() {
@@ -152,6 +164,7 @@ var calibration = function() {
             tempServoCal[3].y = getServoValue('yaxis');
             servoCal = tempServoCal;
             setCalibration();
+            updateTargetCal();
             startCalibrationState();
         });
         leftButton.click(function() {
@@ -204,7 +217,6 @@ var calibration = function() {
                 targets.drag(
                     function(dx, dy) {
                         this.attr({ cx: this.ox + dx, cy: this.oy + dy });
-                        updateTargetCal();
                         bounds.attr('path', Raphael.parsePathString(getBoundsPath()));
                     },
                     function() {
@@ -212,7 +224,6 @@ var calibration = function() {
                         this.oy = this.attr('cy');
                     }
                 );
-                targets.hide();
 
                 // Setup the boundary lines
                 bounds = canvas.path(getBoundsPath());
@@ -228,13 +239,8 @@ var calibration = function() {
             });
         },
 
-        getTargetCalibration: function() {
-            updateTargetCal();
-            return targetCal;
-        },
-
-        getServoCalibration: function() {
-            return servoCal;
+        isCalibrating: function() {
+            return isCalibrating;
         }
     };
 }();

@@ -121,6 +121,12 @@
                 videoLoad.done(function() {
                     calibration.setup('calibrateLayer', video.width(), video.height());
                 });
+
+                $('#calibrateLayer').click(function(ev) {
+                    if (!calibration.isCalibrating()) {
+                        console.log('click');
+                    }
+                });
             });
         </script>
     </body>
