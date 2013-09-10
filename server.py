@@ -28,7 +28,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "test":
 else:
 	# Setup the real servo when running on a Raspberry Pi
 	import servos
-	servos = servos.Servos(SERVO_I2CADDRESS, SERVO_XAXIS_CHANNEL, SERVO_YAXIS_CHANNEL, SERVO_PWM_FREQ)
+	servos = servos.Servos(SERVO_I2C_ADDRESS, SERVO_XAXIS_CHANNEL, SERVO_YAXIS_CHANNEL, SERVO_PWM_FREQ)
 
 model = model.LaserModel(servos, SERVO_MIN, SERVO_MAX, SERVO_CENTER)
 
