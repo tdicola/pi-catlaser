@@ -12,172 +12,153 @@
     <body>
         <div class="container">
             <div class="row">
-                <div class="col-md-9">
+                <div class="col-md-8">
                     <h2>Raspberry Pi Cat Laser</h2>
-                    <!--<iframe src="http://www.ustream.tv/embed/2924984" width="608" height="368" scrolling="no" frameborder="0" style="border: 0px none transparent;"></iframe>-->
-                    <!--<iframe src="http://192.168.1.100:8081/live.htm" width="650" height="490" scrolling="no" frameborder="0" style="border: 0px none transparent;"></iframe>-->
-                    <img id="video" style="cursor: crosshair;" src="http://192.168.1.100:8081/videostream.cgi?rate=50">
-<!--                     <div id="targetpad">
-                        <h4>Click below to target a spot with the laser:</h4>
-                        <div>
-                            <svg id="targetpad" xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="background-color: #3BA3FF; cursor: crosshair;">
-                                <rect width="310" height="230" x="5" y="5" style="fill: #ABABAB;"/>
-                            </svg>
-                        </div>
-                        <div class="label label-danger"></div>
-                    </div> -->
+                    <div id="video">
+                        <!-- Set the MJPEG video stream URL in the image source below -->
+                        <img style="cursor: crosshair;" src="http://192.168.1.100:8081/videostream.cgi?rate=50"/>
+                        <div id="calibrateLayer"></div>
+                    </div>
                 </div>
 
-                <div class="col-md-3">
-                    <h3>Servo Position</h3>
-                    <form role="form">
-                        <div id="xaxis" class="form-group">
-                            <label for="xaxis">X Axis Servo:</label>
+                <div class="col-md-4">
+                    <h3>Servo Positions</h3>
+                    <div id="xaxis" class="form-group">
+                        <label>X Axis Servo</label>
+                        <div class="alert alert-danger"></div>
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default decrease" type="button"><span class="glyphicon glyphicon-chevron-left"></span> -5</button>
+                            </span>
                             <input type="text" class="form-control" name="xaxis" value="{{ model.getXAxis() }}"></input>
-                            <span class="label label-danger"></span>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default increase" type="button">+5 <span class="glyphicon glyphicon-chevron-right"></span></button>
+                            </span>
                         </div>
-                        <div id="yaxis" class="form-group">
-                            <label for="yaxis">Y Axis Servo:</label>
+                    </div>
+                    <div id="yaxis">
+                        <label>Y Axis Servo</label>
+                        <div class="alert alert-danger"></div>
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default decrease" type="button"><span class="glyphicon glyphicon-chevron-left"></span> -5</button>
+                            </span>
                             <input type="text" class="form-control" name="yaxis" value="{{ model.getYAxis() }}"></input>
-                            <span class="label label-danger"></span>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default increase" type="button">+5 <span class="glyphicon glyphicon-chevron-right"></span></button>
+                            </span>
                         </div>
-                    </form>
-
-                    <!-- <h3>Manual Targeting</h3>
-                    <form role="form">
-                        <div id="target" class="form-group">
-                            <div class="form-group">
-                                <label>X Axis:</label>
-                                <input type="text" class="form-control" id="targetx" value=""></input>
-                            </div>
-                            <div class="form-group">
-                                <label>Y Axis:</label>
-                                <input type="text" class="form-control" id="targety" value=""></input>
-                            </div>
-                            <div class="form-group">
-                                <span class="label label-danger"></span>
-                                <button type="button" class="button button-default">Target</button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <h3>Settings</h3>
-                    <form role="form">
-                        <div id="target" class="form-group">
-                            <div class="form-group">
-                                <label>X Axis Servo:</label>
-                                <input type="text" class="form-control" id="targetx" value=""></input>
-                            </div>
-                            <div class="form-group">
-                                <label>Y Axis Servo:</label>
-                                <input type="text" class="form-control" id="targety" value=""></input>
-                            </div>
-                            <div class="form-group">
-                                <span class="label label-danger"></span>
-                                <button type="button" class="button button-default">Update</button>
-                            </div>
-                        </div>
-                    </form> -->
+                    </div>
+                    <h3>Calibration</h3>
+                    <div id="calibrationStep">
+                        <button type="button" class="btn btn-default">Start Calibration</button>
+                    </div>
                 </div>
             </div>
         </div>
         <script src="{{ url_for('static', filename='js/vendor/jquery-1.10.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/json2.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/raphael-min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/sylvester.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/calibration.js') }}"></script>
         <script>
             $(document).ready(function() {
+
+                // Setup servo controls
                 var setupAxis = function(axis) {
                     var group = $('#' + axis);
-                    var input = group.children('input');
-                    var errorspan = group.children('span');
+                    var input = group.find('input');
+                    var erroralert = group.find('div.alert-danger');
+                    var updateAxis = function() {
+                        $.ajax({ url: '/set/servo/' + axis + '/' + input.val(),
+                             type: 'PUT',
+                             error: function(request) {
+                                group.addClass('has-error');
+                                if (request.status === 500) {
+                                    erroralert.text($.parseJSON(request.responseText).result);
+                                    erroralert.show();
+                                }
+                             },
+                             success: function() {
+                                group.removeClass('has-error');
+                                erroralert.hide();
+                             }
+                        });
+                    };
+                    erroralert.hide();
                     input.change(function() {
-                        $.ajax({ url: '/set/' + axis + '/' + input.val(),
-                                 type: 'PUT',
-                                 error: function(request) {
-                                    group.addClass('has-error');
-                                    if (request.status === 500) {
-                                        errorspan.text($.parseJSON(request.responseText).result);
-                                    }
-                                 },
-                                 success: function() {
-                                    group.removeClass('has-error');
-                                    errorspan.text('');
-                                 }
-                            });
+                        updateAxis();
                     });
-                }
+                    group.find('button.decrease').click(function() {
+                        input.val(Number(input.val()) - 5);
+                        updateAxis();
+                    });
+                    group.find('button.increase').click(function() {
+                        input.val(Number(input.val()) + 5);
+                        updateAxis();
+                    });
+                };
                 setupAxis('xaxis');
                 setupAxis('yaxis');
 
-                // $('#targetpad svg').click(function(ev) {
-                //     var error = $('#targetpad > div.label-danger');
-                //     $.ajax({ url: '/target/' + ev.offsetY + '/' + ev.offsetX,
-                //                  type: 'PUT',
-                //                  error: function(request) {
-                //                     if (request.status === 500) {
-                //                         error.text($.parseJSON(request.responseText).result);
-                //                     }
-                //                  },
-                //                  success: function() {
-                //                     error.text('');
-                //                     location.reload(true);
-                //                  }
-                //             });
-                // });
-
-                var readServos = function() {
-                    $.get('/get', function(data) {
-                        $('#xaxis > input').val(data.xaxis);
-                        $('#yaxis > input').val(data.yaxis);
-                    });
-                };
-
-                $('#video').click(function(ev) {
-                    var clickX = ev.clientX;
-                    var clickY = ev.clientY;
-
-                    console.log('Click ' + clickX + ' ' + clickY);
-
-                    var videoTop = 190;
-                    var videoBottom = 525;
-                    var videoTopXMin = 190;
-                    var videoTopXMax = 555;
-                    var videoBottomXMin = 240;
-                    var videoBottomXMax = 480;
-
-                    var servoXBottom = 220;
-                    var servoXTop = 298;
-                    var servoYLeft = 440;
-                    var servoYRight = 340;
-
-                    if (clickY >= videoTop && clickY <= videoBottom) {
-                        // Compute click Y location relative to target area
-                        var relativeY = (clickY - videoTop)/(videoBottom - videoTop);
-                        var minX = Math.round(videoTopXMin + relativeY*(videoBottomXMin - videoTopXMin));
-                        var maxX = Math.round(videoTopXMax - relativeY*(videoTopXMax - videoBottomXMax));
-                        // Compute X min and max for relative Y position
-                        if (clickX >= minX && clickX <= maxX) {
-                            // Compute relative X position
-                            var relativeX = (clickX - minX)/(maxX - minX);
-                            // Compute servo positions
-                            var servoX = Math.round(servoXBottom + (1.0 - relativeY)*(servoXTop - servoXBottom));
-                            var servoY = Math.round(servoYRight + (1.0 - relativeX)*(servoYLeft - servoYRight));
-                            // Move the servos
-                            $.ajax({ url: '/setboth/' + servoX + '/' + servoY,
-                                     type: 'PUT',
-                                     success: function() {
-                                        readServos();
-                                     }
-                                });
-
-                            // console.log(relativeX);
-                            // console.log(relativeY);
-                            // console.log(servoX);
-                            // console.log(servoY);
-                        }
-                    }
-
-                    
+                var video = $('#video img').first();
+                // Generate an event that fires when the video image is loaded.
+                // Use both the load event on the image, and a 1 second timeout as
+                // a fallback.  I found the fallback is necessary with Chrome 
+                // because it sometimes never fires the load event for an MJPEG image.
+                var videoLoad = $.Deferred();
+                window.setTimeout(function() {
+                    videoLoad.resolve();
+                }, 1000);
+                video.load(function() {
+                    videoLoad.resolve();
                 });
+                
+                // Wait for the video image to load, then for calibration setup to run.
+                videoLoad.then(function() {
+                    return calibration.setup('calibrateLayer', video.width(), video.height());
+                }).done(function() {
+                    // Start executing logic
+                    // Start in play mode
+
+                });
+
+                // Generate the matrix to transform a quadrilaterl in target click coordinates to a quadrilateral in
+                // servo movement coordinates using a perspective transformation.  
+                // See http://alumni.media.mit.edu/~cwren/interpolator/ for more details.
+                var updateTransformMatrix = function(targetCal, servoCal) {
+                    // Define some variables to make the matrices more readible.
+                    var x1 = targetCal[0].x, y1 = targetCal[0].y,
+                        x2 = targetCal[1].x, y2 = targetCal[1].y,
+                        x3 = targetCal[2].x, y3 = targetCal[2].y,
+                        x4 = targetCal[3].x, y4 = targetCal[3].y,
+                        X1 = servoCal[0].x,  Y1 = servoCal[0].y,
+                        X2 = servoCal[1].x,  Y2 = servoCal[1].y,
+                        X3 = servoCal[2].x,  Y3 = servoCal[2].y,
+                        X4 = servoCal[3].x,  Y4 = servoCal[3].y;
+                    var A = $M([
+                            [x1, y1,  1,  0,  0,  0, -1*X1*x1, -1*X1*y1],
+                            [ 0,  0,  0, x1, y1,  1, -1*Y1*x1, -1*Y1*y1],
+                            [x2, y2,  1,  0,  0,  0, -1*X2*x2, -1*X2*y2],
+                            [ 0,  0,  0, x2, y2,  1, -1*Y2*x2, -1*Y2*y2],
+                            [x3, y3,  1,  0,  0,  0, -1*X3*x3, -1*X3*y3],
+                            [ 0,  0,  0, x3, y3,  1, -1*Y3*x3, -1*Y3*y3],
+                            [x4, y4,  1,  0,  0,  0, -1*X4*x4, -1*X4*y4],
+                            [ 0,  0,  0, x4, y4,  1, -1*Y4*x4, -1*Y4*y4]
+                        ]);
+                    var B = $V([X1, Y1, X2, Y2, X3, Y3, X4, Y4]);
+                    // Solve for perspective projection matrix coefficients
+                    var coefficients = A.transpose().multiply(A).inverse().multiply(A.transpose()).multiply(B).elements;
+                    // Build transformation matrix from coefficients
+                    var transform = $M([
+                            [coefficients[0], coefficients[1], coefficients[2]],
+                            [coefficients[3], coefficients[4], coefficients[5]],
+                            [coefficients[6], coefficients[7], 1]
+                        ]).inverse();
+                    return transform;
+                }
+
             });
         </script>
     </body>

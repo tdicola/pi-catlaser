@@ -30,28 +30,6 @@ class LaserModelTests(unittest.TestCase):
 		assert self.servos.xaxis == 400
 		assert self.servos.yaxis == 400
 
-	def test_interpolate(self):
-		assert self.model.interpolate(0.0, (0.0, 100.0), (200.0, 600.0)) == 200.0
-		assert self.model.interpolate(100.0, (0.0, 100.0), (200.0, 600.0)) == 600.0
-		assert self.model.interpolate(50.0, (0.0, 100.0), (200.0, 600.0)) == 400.0
-
-	def test_target(self):
-		# Assumes:
-		# self.targetXBounds = (0.0, 240.0)
-		# self.targetYBounds  = (0.0, 320.0)
-		# self.laserXBounds = (150.0, 650.0)
-		# self.laserTopYBounds = (150.0, 650.0)
-		# self.laserBottomYBounds = (200.0, 600.0)
-		self.model.target(120, 160)
-		assert self.servos.xaxis == 400
-		assert self.servos.yaxis == 400
-		self.model.target(0, 0)
-		assert self.servos.xaxis == 150
-		assert self.servos.yaxis == 150
-		self.model.target(240, 320)
-		assert self.servos.xaxis == 650
-		assert self.servos.yaxis == 600
-
 
 class TestServos(object):
 	def __init__(self):
