@@ -12,7 +12,7 @@ The web application.  Clicking in the red target area will aim the laser:
 
 ## Hardware
 
-*	Raspberry Pi connected to a [PCA9685-based servo controller](http://www.adafruit.com/products/815).  See also [this tutorial on using a servo controller with a Raspberry Pi](http://learn.adafruit.com/adafruit-16-channel-servo-driver-with-raspberry-pi/hooking-it-up).
+*	Raspberry Pi connected to a [PCA9685-based servo controller](http://www.adafruit.com/products/815).  See [this tutorial on using a servo controller with a Raspberry Pi](http://learn.adafruit.com/adafruit-16-channel-servo-driver-with-raspberry-pi/hooking-it-up).
 
 *	Two [servos](http://www.adafruit.com/products/169) glued to each other at a right angle.  One servo controls rotation left/right and the other controls rotation up/down.  See the image below:
 
