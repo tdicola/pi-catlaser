@@ -59,9 +59,11 @@ With the software setup, edit server.py to adjust the servo channel, minimum, ma
 
 The server should start and you can connect to it from a web browser at http://(IP address of your Raspberry Pi):5000/.  Click the Start Calibration button to walk through the calibration process.  Follow the calibration instructions and click inside the red target area to move the laser.
 
-### Bugs
+### Bugs and Limitations
 
 Note the web application only works in Chrome, Safari, and likely Firefox (untested).  Internet Explorer unfortunately does not appear to work because the MJPEG video stream is not visible in an image tag. 
+
+This application is currently designed to run privately within your network or over a VPN.  To support running over the internet work should be done to proxy the video stream and secure the APIs.
 
 ### Testing Outside The Raspberry Pi
 
