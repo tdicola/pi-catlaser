@@ -3,7 +3,11 @@ var calibration = function() {
         targets,
         bounds,
         targetCal,
-        servoCal;
+        servoCal,
+        description = $('#calibrationStep p.description').first(),
+        leftButton = $('#calibrationStep button.pull-left').first(),
+        rightButton = $('#calibrationStep button.pull-right').first(),
+        tempServoCal;
 
     // Load calibration data from the server
     var getCalibration = function() {
@@ -12,6 +16,15 @@ var calibration = function() {
                         targetCal = cal.target;
                         servoCal = cal.servo;
                     });
+    };
+
+            // Save calibration data to the server
+    var setCalibration = function() {
+        updateTargetCal();
+        $.post('/set/calibration', {
+            'targetCalibration': JSON.stringify(targetCal),
+            'servoCalibration': JSON.stringify(servoCal)
+        });
     };
 
     // Update targetCal data with current target positions
@@ -33,6 +46,127 @@ var calibration = function() {
         });
     };
 
+    // Transitions to different calibration states
+    var clearClickHandlers = function() {
+        leftButton.unbind('click');
+        rightButton.unbind('click');
+    };
+
+    var startCalibrationState = function() {
+        clearClickHandlers();
+        description.text('');
+        rightButton.hide();
+        leftButton.text('Start Calibration');
+        leftButton.show();
+        leftButton.click(function() {
+            targetCalibrationState();
+        });
+        targets.hide();
+        tempServoCal = [];
+        tempServoCal.push({x: 0, y: 0});
+        tempServoCal.push({x: 0, y: 0});
+        tempServoCal.push({x: 0, y: 0});
+        tempServoCal.push({x: 0, y: 0});
+    };
+
+    var targetCalibrationState = function() {
+        clearClickHandlers();
+        description.text('Drag the red circles to form a target area on the screen.  Please make sure the target area is convex--a square of trapezoid is best.');
+        rightButton.text('Next');
+        leftButton.text('Back');
+        rightButton.click(function() {
+            servoCorner1State();
+        });
+        leftButton.click(function() {
+            startCalibrationState();
+        });
+        rightButton.show();
+        leftButton.show();
+        targets.show();
+    };
+
+    var servoCorner1State = function() {
+        clearClickHandlers();
+        description.text('Use the servo controls to move the laser inside the highlighted circle.');
+        rightButton.text('Next');
+        leftButton.text('Back');
+        rightButton.click(function() {
+            tempServoCal[0].x = getServoValue('xaxis');
+            tempServoCal[0].y = getServoValue('yaxis');
+            servoCorner2State();
+        });
+        leftButton.click(function() {
+            targetCalibrationState();
+        });
+        rightButton.show();
+        leftButton.show();
+        targets.hide();
+        targets[0].show();
+    };
+
+    var servoCorner2State = function() {
+        clearClickHandlers();
+        description.text('Use the servo controls to move the laser inside the highlighted circle.');
+        rightButton.text('Next');
+        leftButton.text('Back');
+        rightButton.click(function() {
+            tempServoCal[1].x = getServoValue('xaxis');
+            tempServoCal[1].y = getServoValue('yaxis');
+            servoCorner3State();
+        });
+        leftButton.click(function() {
+            servoCorner1State();
+        });
+        rightButton.show();
+        leftButton.show();
+        targets.hide();
+        targets[1].show();
+    };
+
+    var servoCorner3State = function() {
+        clearClickHandlers();
+        description.text('Use the servo controls to move the laser inside the highlighted circle.');
+        rightButton.text('Next');
+        leftButton.text('Back');
+        rightButton.click(function() {
+            tempServoCal[2].x = getServoValue('xaxis');
+            tempServoCal[2].y = getServoValue('yaxis');
+            servoCorner4State();
+        });
+        leftButton.click(function() {
+            servoCorner2State();
+        });
+        rightButton.show();
+        leftButton.show();
+        targets.hide();
+        targets[2].show();
+    };
+
+    var servoCorner4State = function() {
+        clearClickHandlers();
+        description.text('Use the servo controls to move the laser inside the highlighted circle.');
+        rightButton.text('Finish');
+        leftButton.text('Back');
+        rightButton.click(function() {
+            tempServoCal[3].x = getServoValue('xaxis');
+            tempServoCal[3].y = getServoValue('yaxis');
+            servoCal = tempServoCal;
+            setCalibration();
+            startCalibrationState();
+        });
+        leftButton.click(function() {
+            servoCorner3State();
+        });
+        rightButton.show();
+        leftButton.show();
+        targets.hide();
+        targets[3].show();
+    };
+
+    var getServoValue = function(axis) {
+        return Number($('#' + axis + ' input').val());
+    };
+
     // Return functions exposed by the module
     return {
         // Setup the calibration data and targets
@@ -41,11 +175,18 @@ var calibration = function() {
             return getCalibration().done(function() {
                 // If no calibration available pick sensible defaults
                 if (targetCal === null) {
-                    targetCal = []
+                    targetCal = [];
                     targetCal.push({x: Math.round(width*1/4), y: Math.round(height*1/4)});
                     targetCal.push({x: Math.round(width*3/4), y: Math.round(height*1/4)});
                     targetCal.push({x: Math.round(width*2/3), y: Math.round(height*3/4)});
                     targetCal.push({x: Math.round(width*1/3), y: Math.round(height*3/4)});
+                }
+                if (servoCal === null) {
+                    servoCal = [];
+                    servoCal.push({x: 150, y: 150});
+                    servoCal.push({x: 650, y: 150});
+                    servoCal.push({x: 650, y: 650});
+                    servoCal.push({x: 150, y: 650});
                 }
 
                 // Setup calibration target circles
@@ -81,16 +222,12 @@ var calibration = function() {
                     'stroke-opacity':   0.4
                 });
                 bounds.toBack();
-            });
-        },
 
-        // Save calibration data to the server
-        save: function() {
-            updateTargetCal();
-            $.post('/set/calibration', { 
-                'targetCalibration': JSON.stringify(targetCal), 
-                'servoCalibration': JSON.stringify(servoCal)
-            }).done(function() { console.log('good'); });
+                console.log(servoCal);
+
+                // Start in initial state
+                startCalibrationState();
+            });
         },
 
         getTargetCalibration: function() {
