@@ -1,6 +1,6 @@
 # Raspberry Pi Cat Laser Toy
 
-Demo of a cat laser toy that can be controlled through the web using a Raspberry Pi.  See the demo on [Adafruit's 9/7/2013 show and tell show](http://www.youtube.com/watch?feature=player_detailpage&v=aKMIensR_Lc#t=745)!
+Demo of a cat laser toy that can be controlled through the web using a Raspberry Pi.  See the demo from Tony on [Adafruit's 9/7/2013 show and tell show](http://www.youtube.com/watch?feature=player_detailpage&v=aKMIensR_Lc#t=745) (~12 minutes into the show)!
 
 The hardware setup:
 
