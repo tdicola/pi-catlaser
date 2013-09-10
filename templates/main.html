@@ -127,42 +127,6 @@
                     // Start in play mode
 
                 });
-
-                // Generate the matrix to transform a quadrilaterl in target click coordinates to a quadrilateral in
-                // servo movement coordinates using a perspective transformation.  
-                // See http://alumni.media.mit.edu/~cwren/interpolator/ for more details.
-                var updateTransformMatrix = function(targetCal, servoCal) {
-                    // Define some variables to make the matrices more readible.
-                    var x1 = targetCal[0].x, y1 = targetCal[0].y,
-                        x2 = targetCal[1].x, y2 = targetCal[1].y,
-                        x3 = targetCal[2].x, y3 = targetCal[2].y,
-                        x4 = targetCal[3].x, y4 = targetCal[3].y,
-                        X1 = servoCal[0].x,  Y1 = servoCal[0].y,
-                        X2 = servoCal[1].x,  Y2 = servoCal[1].y,
-                        X3 = servoCal[2].x,  Y3 = servoCal[2].y,
-                        X4 = servoCal[3].x,  Y4 = servoCal[3].y;
-                    var A = $M([
-                            [x1, y1,  1,  0,  0,  0, -1*X1*x1, -1*X1*y1],
-                            [ 0,  0,  0, x1, y1,  1, -1*Y1*x1, -1*Y1*y1],
-                            [x2, y2,  1,  0,  0,  0, -1*X2*x2, -1*X2*y2],
-                            [ 0,  0,  0, x2, y2,  1, -1*Y2*x2, -1*Y2*y2],
-                            [x3, y3,  1,  0,  0,  0, -1*X3*x3, -1*X3*y3],
-                            [ 0,  0,  0, x3, y3,  1, -1*Y3*x3, -1*Y3*y3],
-                            [x4, y4,  1,  0,  0,  0, -1*X4*x4, -1*X4*y4],
-                            [ 0,  0,  0, x4, y4,  1, -1*Y4*x4, -1*Y4*y4]
-                        ]);
-                    var B = $V([X1, Y1, X2, Y2, X3, Y3, X4, Y4]);
-                    // Solve for perspective projection matrix coefficients
-                    var coefficients = A.transpose().multiply(A).inverse().multiply(A.transpose()).multiply(B).elements;
-                    // Build transformation matrix from coefficients
-                    var transform = $M([
-                            [coefficients[0], coefficients[1], coefficients[2]],
-                            [coefficients[3], coefficients[4], coefficients[5]],
-                            [coefficients[6], coefficients[7], 1]
-                        ]).inverse();
-                    return transform;
-                }
-
             });
         </script>
     </body>

@@ -223,8 +223,6 @@ var calibration = function() {
                 });
                 bounds.toBack();
 
-                console.log(servoCal);
-
                 // Start in initial state
                 startCalibrationState();
             });

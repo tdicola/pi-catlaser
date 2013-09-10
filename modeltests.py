@@ -4,17 +4,17 @@ from model import LaserModel
 class LaserModelTests(unittest.TestCase):
 	def setUp(self):
 		self.servos = TestServos()
-		self.model = LaserModel(self.servos)
+		self.model = LaserModel(self.servos, 150, 650, 400)
 
 	def test_setxaxis_getxaxis(self):
 		self.model.setXAxis(200)
-		assert self.model.getXAxis() == 200
-		assert self.servos.xaxis == 200
+		self.assertEqual(self.model.getXAxis(), 200)
+		self.assertEqual(self.servos.xaxis, 200)
 
 	def test_setyaxis_getyaxis(self):
 		self.model.setYAxis(200)
-		assert self.model.getYAxis() == 200
-		assert self.servos.yaxis == 200
+		self.assertEqual(self.model.getYAxis(), 200)
+		self.assertEqual(self.servos.yaxis, 200)
 
 	def test_setxaxis_out_of_bounds_raises_valueerror(self):
 		self.assertRaises(ValueError, self.model.setXAxis, 10)
@@ -25,10 +25,36 @@ class LaserModelTests(unittest.TestCase):
 		self.assertRaises(ValueError, self.model.setYAxis, 700)
 
 	def test_axis_defaults_to_400(self):
-		assert self.model.getXAxis() == 400
-		assert self.model.getYAxis() == 400
-		assert self.servos.xaxis == 400
-		assert self.servos.yaxis == 400
+		self.assertEqual(self.model.getXAxis(), 400)
+		self.assertEqual(self.model.getYAxis(), 400)
+		self.assertEqual(self.servos.xaxis, 400)
+		self.assertEqual(self.servos.yaxis, 400)
+
+	def test_setcalibration_getcalibration(self):
+		targetCal = [{'x': 150, 'y': 150}, {'x': 450, 'y': 150}, {'x': 400, 'y': 300}, {'x': 200, 'y': 300}]
+		servoCal = [{'x': 10, 'y': 10}, {'x': 50, 'y': 10}, {'x': 50, 'y': 50}, {'x': 10, 'y': 50}]
+		self.model.setCalibration(targetCal, servoCal)
+		tc, sc = self.model.getCalibration()
+		self.assertEqual(tc, targetCal)
+		self.assertEqual(sc, servoCal)
+
+	def test_setcalibration_saves_calibration(self):
+		targetCal = [{'x': 150, 'y': 150}, {'x': 450, 'y': 150}, {'x': 400, 'y': 300}, {'x': 200, 'y': 300}]
+		servoCal = [{'x': 10, 'y': 10}, {'x': 50, 'y': 10}, {'x': 50, 'y': 50}, {'x': 10, 'y': 50}]
+		self.model.setCalibration(targetCal, servoCal)
+		self.model = LaserModel(self.servos, 150, 650, 400)
+		tc, sc = self.model.getCalibration()
+		self.assertEqual(tc, targetCal)
+		self.assertEqual(sc, servoCal)
+
+	def test_target(self):
+		targetCal = [{'x': 190, 'y': 190}, {'x': 555, 'y': 190}, {'x': 480, 'y': 525}, {'x': 240, 'y': 525}]
+		servoCal = [{'x': 440, 'y': 298}, {'x': 340, 'y': 298}, {'x': 340, 'y': 220}, {'x': 440, 'y': 220}]
+		self.model.setCalibration(targetCal, servoCal)
+		self.model.target(190, 190)
+		self.assertEqual(self.servos.xaxis, 440)
+		self.assertEqual(self.servos.yaxis, 298)
+
 
 
 class TestServos(object):
