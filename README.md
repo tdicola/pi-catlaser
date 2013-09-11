@@ -53,7 +53,9 @@ The following software needs to be installed on the Raspberry-Pi:
 
 ## Setup and Usage
 
-With the software setup, edit server.py to adjust the servo channel, minimum, maximum, etc. values at the top of the file if necessary.  Save the file an execute:
+With the software setup, edit server.py to adjust the servo channel, minimum, maximum, etc. values at the top of the file if necessary.  Next edit main.html in the templates directory and change the img tag contents to point at your camera's MJPEG video stream URL.
+
+Finally execute the following command to start the server:
 
 	sudo python server.py
 
