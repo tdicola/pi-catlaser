@@ -28,7 +28,7 @@ The web application.  Clicking in the red target area will aim the laser:
 
 	You can potentially use other cameras like a webcam or even Raspberry Pi camera, but you will need to be careful about the latency and display of the video on the web.  I tried using H.264 encoded video streamed from both an iPhone and webcam through services such as Ustream, Livestream, and even Amazon AWS CloudFront.  Unfortunately in all cases the latency of the video stream was extremely high, on the order of 10-15 seconds.  High latency makes the control of laser over the web impossible.  
 
-	Furthermore if you use a video stream that must be embedded in a web page with an iframe or Flash object (like Ustream, Livestream, Youtube, etc.) you will not be able to target by clicking the video.  The problem is that web browsers enforce a strict cross-domain security model where ovents on an iframe/embedded object are not visible to the parent web page.  Using an MJPEG stream cna work around this restriction because the video is embedded in an image tag.
+	Furthermore if you use a video stream that must be embedded in a web page with an iframe or Flash object (like Ustream, Livestream, Youtube, etc.) you will not be able to target by clicking the video.  The problem is that web browsers enforce a strict cross-domain security model where events on an iframe/embedded object are not visible to the parent web page.  Using an MJPEG stream cna work around this restriction because the video is embedded in an image tag.
 
 ## Software
 
