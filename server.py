@@ -80,7 +80,6 @@ def target(x, y):
 	model.target(x, y)
 	return successNoResponse()
 
-
 # Start running the flask app
 if __name__ == '__main__':
 	app.run(host='0.0.0.0')
