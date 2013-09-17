@@ -10,62 +10,9 @@ The web application.  Clicking in the red target area will aim the laser:
 
 <a href="http://imgur.com/F4eB9sH"><img src="http://i.imgur.com/F4eB9sHl.png" title="Hosted by imgur.com"/></a>
 
-## Hardware
+## Guide
 
-*	Raspberry Pi connected to a [PCA9685-based servo controller](http://www.adafruit.com/products/815).  See [this tutorial on using a servo controller with a Raspberry Pi](http://learn.adafruit.com/adafruit-16-channel-servo-driver-with-raspberry-pi/hooking-it-up).
-
-*	Two [servos](http://www.adafruit.com/products/169) glued to each other at a right angle.  One servo controls rotation left/right and the other controls rotation up/down.  See the image below:
-
-	<a href="http://imgur.com/DTGnc2f" title="Mobile Upload"><img src="http://i.imgur.com/DTGnc2fs.jpg" title="Hosted by imgur.com" alt="Mobile Upload"/></a>
-	
-	Make sure the servos are aimed at roughly the same angle as the camera (to reduce the error between clicking and aiming the laser).
-
-*	Laser diode glued to the servo.  You can [buy one](http://www.adafruit.com/products/1054) or scavenge one from a laser pointer (what I chose to do).
-
-*	Network video camera that outputs an MJPEG video stream.  I use [this Wansview brand camera](http://www.amazon.com/Wansview-Wireless-Surveillance-Microphone-monitoring/dp/B003LNZ1L6/ref=sr_1_1?ie=UTF8&qid=1378666733&sr=8-1&keywords=wansview), but other brands like Foscam [output MJPEG streams](http://www.ispyconnect.com/man.aspx?n=foscam).
-
-	### Note about cameras and video streams
-
-	You can potentially use other cameras like a webcam or even Raspberry Pi camera, but you will need to be careful about the latency and display of the video on the web.  I tried using H.264 encoded video streamed from both an iPhone and webcam through services such as Ustream, Livestream, and even Amazon AWS CloudFront.  Unfortunately in all cases the latency of the video stream was extremely high, on the order of 10-15 seconds.  High latency makes the control of laser over the web impossible.  
-
-	Furthermore if you use a video stream that must be embedded in a web page with an iframe or Flash object (like Ustream, Livestream, Youtube, etc.) you will not be able to target by clicking the video.  The problem is that web browsers enforce a strict cross-domain security model where events on an iframe/embedded object are not visible to the parent web page.  Using an MJPEG stream can work around this restriction because the video is embedded in an image tag.
-
-## Software
-
-The following software needs to be installed on the Raspberry-Pi:
-
-*	Python 2.7
-
-*	[Flask](http://flask.pocoo.org/)
-	
-	Can be installed on Raspbian using these commands:
-
-		sudo apt-get install python-pip
-		sudo pip install flask
-
-*	[NumPy](http://www.numpy.org/)
-
-	Can be installed on Raspbian using this command:
-
-		sudo apt-get install python-numpy
-
-*	[I2C setup on the Raspberry Pi](http://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c)
-
-## Setup and Usage
-
-With the software setup, edit server.py to adjust the servo channel, minimum, maximum, etc. values at the top of the file if necessary.  Next edit main.html in the templates directory and change the img tag contents to point at your camera's MJPEG video stream URL.
-
-Finally execute the following command to start the server:
-
-	sudo python server.py
-
-The server should start and you can connect to it from a web browser at http://(IP address of your Raspberry Pi):5000/.  Click the Start Calibration button to walk through the calibration process.  Follow the calibration instructions and click inside the red target area to move the laser.
-
-### Bugs and Limitations
-
-Note the web application only works in Chrome, Safari, and likely Firefox (untested).  Internet Explorer unfortunately does not appear to work because the MJPEG video stream is not visible in an image tag. 
-
-This application is currently designed to run privately within your network or over a VPN.  To support running over the internet work should be done to proxy the video stream and secure the APIs.
+This project is now written up as a guide on the [Adafruit Learning System](http://learn.adafruit.com/raspberry-pi-wifi-controlled-cat-laser-toy).  See the guide there for details on how to set up the hardware and software for the project.
 
 ### Testing Outside The Raspberry Pi
 
