@@ -191,14 +191,14 @@ var calibration = function() {
             canvas = Raphael(id, width, height);
             return getCalibration().done(function() {
                 // If no calibration available pick sensible defaults
-                if (targetCal === null) {
+                if (targetCal == null) {
                     targetCal = [];
                     targetCal.push({x: Math.round(width*1/4), y: Math.round(height*1/4)});
                     targetCal.push({x: Math.round(width*3/4), y: Math.round(height*1/4)});
                     targetCal.push({x: Math.round(width*2/3), y: Math.round(height*3/4)});
                     targetCal.push({x: Math.round(width*1/3), y: Math.round(height*3/4)});
                 }
-                if (servoCal === null) {
+                if (servoCal == null) {
                     servoCal = [];
                     servoCal.push({x: 150, y: 150});
                     servoCal.push({x: 650, y: 150});
